@@ -1,3 +1,6 @@
+tmp**
 venv**
 **/__py**
 secrets.sh
+
+.vscode

@@ -11,7 +11,7 @@ app = Flask(__name__)
 db_client = MongoClient(config.MONGO_URL)
 db = db_client.test
 
-feature_extractor = FeatureExtractor()
+feature_extractor = FeatureExtractor(config.FEATURE)
 downloader = YoutubeDownloader()
 
-inferencer = Inference()
+inferencer = Inference(config.SCALE)

@@ -17,20 +17,20 @@ class FeatureExtractor:
     def generate_mfcc(self, filename):
         hopSize=512
         (XAudio, Fs) = getAudioLibrosa(filename)
-        XMFCC = self.getMFCCsLibrosa(XAudio, Fs, 4*hopSize, hopSize, lifterexp = 0.6, NMFCC = 20)
+        XMFCC = getMFCCsLibrosa(XAudio, Fs, 4*hopSize, hopSize, lifterexp = 0.6, NMFCC = 20)
         XMFCC = (XMFCC - np.mean(XMFCC)) / np.std(XMFCC)
         return XMFCC
 
     def generate_hpcp(self, filename):
         hopSize=512
         (XAudio, Fs) = getAudioLibrosa(filename)
-        XHPCP = self.getHPCPEssentia(XAudio, Fs, 2048, hopSize, NChromaBins = 12)
+        XHPCP = getHPCPEssentia(XAudio, Fs, 2048, hopSize, NChromaBins = 12)
         XHPCP = (XHPCP - np.mean(XHPCP)) / np.std(XHPCP)
         return XHPCP
     
     def generate_cens(self, filename):
         (XAudio, Fs) = getAudioLibrosa(filename)
-        XCENS = self.getCENSLibrosa(XAudio)
+        XCENS = getCENSLibrosa(XAudio)
         XCENS = (XCENS - np.mean(XCENS)) / np.std(XCENS)
         return XCENS
        
