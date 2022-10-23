@@ -5,8 +5,8 @@ from torch.nn import functional as F
 
 class Inference:
     def __init__(self, scale, threshold=0.13) -> None:
-        self.model = from_config('/home/petros/cover-song-identification-platform/csi_be/resources/config.json')
-        chk = torch.load('/home/petros/cover-song-identification-platform/csi_be/resources/checkpoint.tar', map_location=torch.device("cpu")) 
+        self.model = from_config('/home/petros/cover-song-identification-platform/CSI_BE/app/resources/config.json')
+        chk = torch.load('/home/petros/cover-song-identification-platform/CSI_BE/app/resources/checkpoint.tar', map_location=torch.device("cpu")) 
         self.model.load_state_dict(chk['model_state_dict'])
         print("loaded pretrained model")
         self.model.eval()
