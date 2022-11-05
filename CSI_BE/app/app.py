@@ -14,4 +14,4 @@ db = db_client.test
 feature_extractor = FeatureExtractor(config.FEATURE)
 downloader = YoutubeDownloader()
 
-inferencer = Inference(config.SCALE)
+inferencer = Inference(config.SCALE, config.THRESHOLD, config.FRAME_SIZE)

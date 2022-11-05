@@ -6,6 +6,7 @@ from app import app, db, downloader, feature_extractor, inferencer
 from endpoints.converters import convert_song_doc_to_dto
 from config import config
 from flask import request
+from storage import upload_blob, download_blob
 from uuid import uuid4
 import shutil
 import logging
@@ -25,7 +26,9 @@ logger.setLevel(logging.DEBUG) # <-- THIS!
 
 @app.route("/songs/count", methods=['GET'])
 def get_song_count():
-    return db.songs.count_documents(), 200
+    if request.method == 'GET':
+        logger.info("Entered get_song_count")
+        return {'count': db.songs.count_documents({})}, 200
 
 @app.route("/songs/<id>")
 def get_song(id):
@@ -51,7 +54,7 @@ def get_song(id):
     logger.info("Received request to get_song")
     return db.songs.find({'_id': id}), 200
 
-@app.route("/songs", methods=['GET', 'POST'])
+@app.route("/songs", methods=['GET', 'POST', 'DELETE'])
 def songs():
     request_id = str(uuid4())
     tmp_path = config.DATA_DIR + "/" + request_id
@@ -96,26 +99,33 @@ def songs():
             
             # Generate embeddings
             print("Generating embeddings")
-            emb = inferencer.generate_embeddings(features)
-            emb_pickle = bson.binary.Binary( pickle.dumps(emb, protocol=2) )
+            emb = inferencer.generate_embeddings(features, segment=False)
+            emb_seg = inferencer.generate_embeddings(features, segment=True)
+            emb_pickle = bson.binary.Binary( pickle.dumps(emb.numpy(), protocol=2) )
+            emb_seg_pickle = bson.binary.Binary( pickle.dumps(emb_seg.numpy(), protocol=2) )
         
             doc = {}
             doc['title'] = title
             doc['upload_date'] = datetime.now()
-            doc['features'] = {
-                'hpcp': hpcp_pickle
-            }
             doc['version'] = config.APP_VERSION
             doc['embeddings'] = emb_pickle
+            doc['embeddings_seg'] = emb_seg_pickle
             doc['yt_link'] = dto['yt_link']
             
             print("Saved to database")
             db.songs.insert_one(doc)
             
             doc = db.songs.find_one({'yt_link': dto['yt_link']})
+            
+            upload_blob(str(doc['_id']), hpcp_pickle)
             return convert_song_doc_to_dto(doc), 200
         except Exception as e:
+            print(str(e))
             return str(e), 500
         finally:
             shutil.rmtree(tmp_path)
+    elif request.method == 'DELETE':
+        logger.info("Entered delete all")
+        db.songs.delete_many({})
+        return {'result': 'ok'}, 200
         

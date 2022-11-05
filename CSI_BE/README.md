@@ -1,3 +1,6 @@
+## Run with
+gunicorn --chdir app -w 2 --threads 2 run:app -b 0.0.0.0:5000
+
 ### Get all songs
 curl -X GET "http://localhost:5000/songs"
 
@@ -33,6 +36,15 @@ Response:
 
 ### Predict pair
 curl -X GET "http://localhost:5000/predict/pair?id_1=6351c405c0303fbe8812c449&id_2=6351c405c0303fbe8812c449"
+
+Response:
+{
+  "dist": 0.0,
+  "is_cover": 1
+}
+
+### Predict rank
+curl -X GET "http://localhost:5000/predict/rank?id_1=63618ed3c270ef8e95a2e1ff"
 
 Response:
 {

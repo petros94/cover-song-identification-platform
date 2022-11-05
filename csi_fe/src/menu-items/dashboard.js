@@ -12,8 +12,8 @@ const dashboard = {
     type: 'group',
     children: [
         {
-            id: 'default',
-            title: 'Dashboard',
+            id: 'default1',
+            title: 'Home',
             type: 'item',
             url: '/dashboard/default',
             icon: icons.IconDashboard,
