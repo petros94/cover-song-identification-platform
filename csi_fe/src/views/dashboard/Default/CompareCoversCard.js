@@ -73,6 +73,11 @@ const CompareCoversCard = ({ isLoading, songList }) => {
                                     </Grid>
                                 </Grid>
                             </Grid>
+                            <Grid item xs={12}>
+                                <Typography>
+                                    Select two songs from the database to check if they are covers or not.
+                                </Typography>
+                            </Grid>
                             <Grid container item xs={12}>
                                 <Grid container item xs={6}>
                                     <Grid item>

@@ -11,6 +11,7 @@ from uuid import uuid4
 import shutil
 import logging
 import bson
+from bson.objectid import ObjectId
 
 import logging
 
@@ -30,7 +31,7 @@ def get_song_count():
         logger.info("Entered get_song_count")
         return {'count': db.songs.count_documents({})}, 200
 
-@app.route("/songs/<id>")
+@app.route("/songs/<id>", methods=['GET', 'DELETE'])
 def get_song(id):
     """Song schema:
     {
@@ -51,8 +52,15 @@ def get_song(id):
     Returns:
         JSON: the song
     """
-    logger.info("Received request to get_song")
-    return db.songs.find({'_id': id}), 200
+    if request.method == 'GET':
+        logger.info("Received request to get_song")
+        doc = db.songs.find_one({'_id': ObjectId(id)})
+        return convert_song_doc_to_dto(doc), 200
+    elif request.method == 'DELETE':
+        logger.info("Deleted song")
+        db.songs.delete_one({'_id': ObjectId(id)})
+        return "OK", 200
+        
 
 @app.route("/songs", methods=['GET', 'POST', 'DELETE'])
 def songs():

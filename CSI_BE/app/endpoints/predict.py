@@ -89,10 +89,13 @@ def predict_rank():
     
     logger.info("Calculating distances")
     distances = torch.cdist(emb_1, embeddings).squeeze(0).numpy()
+    inv = 2 - distances
+    covers = ((inv > inferencer.D_full)*1).tolist()
+    
     ids = np.argsort(distances)
     embeddings = embeddings.tolist()
     
-    return [convert_song_doc_to_dto_with_dist(dtos[i], distances[i], embeddings[i]) for i in ids]
+    return [convert_song_doc_to_dto_with_dist_cover(dtos[i], distances[i], embeddings[i], covers[i]) for i in ids]
     
     
 @app.route("/predict/rankaggregated", methods=['GET'])
@@ -114,16 +117,18 @@ def predict_rank_aggregated():
         min_len = min(len(anchor), len(emb))
 
         # Crop to minimum length
-        emb_1 = anchor[: min_len - 1]
-        emb_2 = emb[: min_len - 1]
+        emb_1 = anchor[: min_len]
+        emb_2 = emb[: min_len]
         
         _, dist, is_cover_mean = inferencer.predict(emb_1, emb_2)
         
-        distances.append(np.mean(dist.tolist()))
+        dist = np.mean(dist.tolist())
+        
+        distances.append(dist if not np.isnan(dist) else 1.00)
         covers.append(is_cover_mean)
         dtos.append(doc)
-        embeddings.append(torch.mean(emb_2, dim=1))
+        embeddings.append(torch.mean(emb_2, dim=-1))
         
     embeddings = torch.cat(embeddings, dim=0).tolist()
-    ids = np.argsort(distances)    
+    ids = np.argsort(distances)  
     return [convert_song_doc_to_dto_with_dist_cover(dtos[i], distances[i], embeddings[i], covers[i]) for i in ids]

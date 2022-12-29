@@ -37,6 +37,14 @@ const getAllSongs = () => {
         .then(songs => sortByKey(songs, 'title'))
 }
 
+const getSong = (id) => {
+    return ax({
+        url: `/songs/${id}`,
+        method: "GET"
+    })
+        .then(res => res.data)
+}
+
 /**
  * 
  * @param {str} yt_link 
@@ -49,6 +57,14 @@ const postSong = ({ yt_link }) => {
         data: {
             'yt_link': yt_link
         }
+    })
+        .then(res => res.data)
+}
+
+ const deleteSong = (id) => {
+    return ax({
+        url: `/songs/${id}`,
+        method: "DELETE"
     })
         .then(res => res.data)
 }
@@ -74,4 +90,4 @@ const predictRankAggregated = (song1) => {
     }).then(res => res.data)
 }
 
-export { getSongsCount, getAllSongs, postSong, predictPair, predictRank, predictRankAggregated }
+export { getSongsCount, getAllSongs, getSong, postSong, deleteSong, predictPair, predictRank, predictRankAggregated }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useEffect, useState } from 'react';
+import { useSearchParams } from "react-router-dom";
 import { useTheme } from '@mui/material/styles';
 
 import { Avatar, Button, CardActions, CardContent, Divider, Grid, Menu, Stack, Typography, Switch } from '@mui/material';
@@ -8,12 +9,13 @@ import SkeletonPopularCard from 'ui-component/cards/Skeleton/PopularCard';
 import MainCard from 'ui-component/cards/MainCard';
 
 import { gridSpacing } from 'store/constant';
-import { getAllSongs, predictRank, predictRankAggregated } from 'networking';
+import { getAllSongs, getSong, predictRank, predictRankAggregated } from 'networking';
 import ComboBox from 'ui-component/ComboBox';
 
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import Microphone from 'ui-component/Microphone';
 
 const RankItem = ({ song }) => {
     const { title, dist, is_cover } = song;
@@ -34,7 +36,7 @@ const RankItem = ({ song }) => {
                             <Grid container alignItems="center" justifyContent="space-between">
                                 <Grid item>
                                     <Typography variant="subtitle1" color="inherit">
-                                        {((1 - dist) * 100).toFixed(1)}%
+                                        {((2 - dist) / 2 * 100).toFixed(1)}%
                                     </Typography>
                                 </Grid>
                                 {is_cover != null &&
@@ -65,7 +67,7 @@ const RankItem = ({ song }) => {
 }
 
 const Rank = () => {
-
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isLoading, setLoading] = useState(true);
     const [songList, setSongList] = useState([]);
     const [song, setSong] = useState(null)
@@ -81,14 +83,21 @@ const Rank = () => {
         }).catch(res => {
             setLoading(false);
         })
+
+        const querySong = searchParams.get("query_song");
+        if (querySong != null) {
+            getSong(querySong).then(res => {
+                setSong({ label: res.title, value: res });
+                handleRank({ label: res.title, value: res });
+            })
+        }
     }, [])
 
-    const handleRank = () => {
-        console.log(`Ranking ${song.value}`)
+    const handleRank = (selectedSong) => {
         setRankPending(true);
 
         if (sdm) {
-            predictRankAggregated(song.value._id).then(res => {
+            predictRankAggregated(selectedSong.value._id).then(res => {
                 setRankList(res);
                 setRankPending(false);
             }).catch(ex => {
@@ -96,7 +105,7 @@ const Rank = () => {
             })
         }
         else {
-            predictRank(song.value._id).then(res => {
+            predictRank(selectedSong.value._id).then(res => {
                 setRankList(res);
                 setRankPending(false);
             }).catch(ex => {
@@ -135,7 +144,13 @@ const Rank = () => {
                                         </Grid>
                                     </Grid>
                                     <Grid container item xs={6}>
-                                        <Grid item>
+                                        <Grid item xs={12}>
+                                            <Typography>
+                                                Select a song from the database to see how it compares to other songs, in terms of similarity.
+                                                A green icon next to a result indicates that it may be a cover of the selected song.
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} sx={{ pt: 2 }}>
                                             <Typography variant="h5">
                                                 Pick song
                                             </Typography>
@@ -151,7 +166,7 @@ const Rank = () => {
                                                             color="secondary"
                                                             variant="contained"
                                                             disableElevation
-                                                            onClick={handleRank}>
+                                                            onClick={() => handleRank(song)}>
                                                             Rank
                                                         </Button>
                                                     </AnimateButton>) :
@@ -172,6 +187,9 @@ const Rank = () => {
                     )
                 }
             </Grid>
+            {/* <Grid item xs={12}>
+                <Microphone />
+            </Grid> */}
         </Grid>
     )
 }

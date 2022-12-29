@@ -15,7 +15,7 @@ const songs = {
             id: 'default2',
             title: 'Songs',
             type: 'item',
-            url: '/dashboard/default',
+            url: '/songs/manage',
             icon: icons.IconMusic,
             breadcrumbs: false
         },
