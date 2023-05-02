@@ -6,6 +6,9 @@ import Loadable from 'ui-component/Loadable';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
+const SongsRank = Loadable(lazy(() => import('views/songs/rank')));
+const ManageSongs = Loadable(lazy(() => import('views/songs/manage')));
+
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -23,6 +26,19 @@ const MainRoutes = {
                 {
                     path: 'default',
                     element: <DashboardDefault />
+                }
+            ]
+        },
+        {
+            path: 'songs',
+            children: [
+                {
+                    path: 'rank',
+                    element: <SongsRank />
+                },
+                {
+                    path: 'manage',
+                    element: <ManageSongs />
                 }
             ]
         }
