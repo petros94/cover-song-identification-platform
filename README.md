@@ -14,6 +14,7 @@ Install the backend:
 
 ```shell
 cd CSI_BE
+touch secrets.sh
 virtualenv -p python3.9 venv
 . venv/bin/activate
 pip3 install -r requirements.txt
